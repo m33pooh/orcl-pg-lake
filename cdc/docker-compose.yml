@@ -1,0 +1,127 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. Oracle Databases (แยก 4 แอป + แมปพอร์ต)
+  # ==========================================
+  oracle-ecommerce:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-ecommerce
+    environment:
+      - ORACLE_PWD=EcomPwd123!
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle_ecommerce_data:/opt/oracle/oradata
+    networks:
+      - datalake-net
+
+  oracle-wallet:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-wallet
+    environment:
+      - ORACLE_PWD=WalletPwd123!
+    ports:
+      - "11521:1521"
+    volumes:
+      - oracle_wallet_data:/opt/oracle/oradata
+    networks:
+      - datalake-net
+
+  oracle-crm:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-crm
+    environment:
+      - ORACLE_PWD=CrmPwd123!
+    ports:
+      - "21521:1521"
+    volumes:
+      - oracle_crm_data:/opt/oracle/oradata
+    networks:
+      - datalake-net
+
+  oracle-audit:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-audit
+    environment:
+      - ORACLE_PWD=AuditPwd123!
+    ports:
+      - "31521:1521"
+    volumes:
+      - oracle_audit_data:/opt/oracle/oradata
+    networks:
+      - datalake-net
+
+  # ==========================================
+  # 2. PostgreSQL (Data Lake)
+  # ==========================================
+  postgres-datalake:
+    image: postgres:16
+    container_name: postgres-datalake
+    environment:
+      - POSTGRES_USER=datalake_admin
+      - POSTGRES_PASSWORD=DataLakePwd123!
+      - POSTGRES_DB=datalake_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_datalake_data:/var/lib/postgresql/data
+    networks:
+      - datalake-net
+
+  # ==========================================
+  # 3. Kafka & Zookeeper (Message Broker สำหรับ CDC)
+  # ==========================================
+  zookeeper:
+    image: quay.io/debezium/zookeeper:2.4
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - datalake-net
+
+  kafka:
+    image: quay.io/debezium/kafka:2.4
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+    depends_on:
+      - zookeeper
+    networks:
+      - datalake-net
+
+  # ==========================================
+  # 4. Debezium Connect (ตัวดูด-ดัน ข้อมูล)
+  # ==========================================
+  debezium-connect:
+    image: quay.io/debezium/connect:2.4
+    container_name: debezium-connect
+    ports:
+      - "8083:8083" # พอร์ตสำหรับยิง API สั่งให้เริ่มดูดข้อมูล
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+    depends_on:
+      - kafka
+      - oracle-wallet
+      - postgres-datalake
+    networks:
+      - datalake-net
+
+volumes:
+  oracle_ecommerce_data:
+  oracle_wallet_data:
+  oracle_crm_data:
+  oracle_audit_data:
+  pg_datalake_data:
+
+networks:
+  datalake-net:
+    driver: bridge

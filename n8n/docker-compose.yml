@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. Oracle สำหรับ E-Commerce App (Port: 1521)
+  # ==========================================
+  oracle-ecommerce:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-ecommerce
+    environment:
+      - ORACLE_PWD=EcomPwd123!
+    ports:
+      - "1521:1521" # แมปพอร์ตออกเครื่องโฮสต์เป็น 1521
+    volumes:
+      - oracle_ecommerce_data:/opt/oracle/oradata
+      - ./init-ecommerce:/opt/oracle/scripts/startup
+    networks:
+      - datalake-net
+
+  # ==========================================
+  # 2. Oracle สำหรับ Wallet App (Port: 11521)
+  # ==========================================
+  oracle-wallet:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-wallet
+    environment:
+      - ORACLE_PWD=WalletPwd123!
+    ports:
+      - "11521:1521" # แมปพอร์ตออกเครื่องโฮสต์เป็น 11521
+    volumes:
+      - oracle_wallet_data:/opt/oracle/oradata
+      - ./init-wallet:/opt/oracle/scripts/startup
+    networks:
+      - datalake-net
+
+  # ==========================================
+  # 3. Oracle สำหรับ CRM App (Port: 21521)
+  # ==========================================
+  oracle-crm:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-crm
+    environment:
+      - ORACLE_PWD=CrmPwd123!
+    ports:
+      - "21521:1521" # แมปพอร์ตออกเครื่องโฮสต์เป็น 21521
+    volumes:
+      - oracle_crm_data:/opt/oracle/oradata
+      - ./init-crm:/opt/oracle/scripts/startup
+    networks:
+      - datalake-net
+
+  # ==========================================
+  # 4. Oracle สำหรับ Audit Log App (Port: 31521)
+  # ==========================================
+  oracle-audit:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-audit
+    environment:
+      - ORACLE_PWD=AuditPwd123!
+    ports:
+      - "31521:1521" # แมปพอร์ตออกเครื่องโฮสต์เป็น 31521
+    volumes:
+      - oracle_audit_data:/opt/oracle/oradata
+      - ./init-audit:/opt/oracle/scripts/startup
+    networks:
+      - datalake-net
+
+  # ==========================================
+  # 5. PostgreSQL (Data Lake รวมข้อมูลเก่าจากทั้ง 4 แอป)
+  # ==========================================
+  postgres-datalake:
+    image: postgres:16
+    container_name: postgres-datalake
+    environment:
+      - POSTGRES_USER=datalake_admin
+      - POSTGRES_PASSWORD=DataLakePwd123!
+      - POSTGRES_DB=datalake_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_datalake_data:/var/lib/postgresql/data
+      - ./init-datalake:/docker-entrypoint-initdb.d
+    networks:
+      - datalake-net
+
+  # ==========================================
+  # 6. n8n (ตัวคอยสูบข้อมูลจาก Oracle ทั้ง 4 ไป Postgres)
+  # ==========================================
+  n8n-etl:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: n8n-etl
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - GENERIC_TIMEZONE=Asia/Bangkok
+    volumes:
+      - n8n_config:/home/node/.n8n
+    networks:
+      - datalake-net
+    depends_on:
+      - oracle-ecommerce
+      - oracle-wallet
+      - oracle-crm
+      - oracle-audit
+      - postgres-datalake
+
+volumes:
+  oracle_ecommerce_data:
+  oracle_wallet_data:
+  oracle_crm_data:
+  oracle_audit_data:
+  pg_datalake_data:
+  n8n_config:
+
+networks:
+  datalake-net:
+    driver: bridge
