@@ -1,0 +1,13 @@
+JarIndex-Version: 1.0
+
+debezium-server-http-2.4.2.Final.jar
+META-INF
+META-INF/maven
+META-INF/maven/io.debezium
+META-INF/maven/io.debezium/debezium-server-http
+io
+io/debezium
+io/debezium/server
+io/debezium/server/http
+io/debezium/server/http/jwt
+

@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Created-By: Apache Maven 3.8.6
+Built-By: centos
+Build-Jdk: 17.0.2
+Specification-Title: Debezium Server HTTP Webhook Sink Adapter
+Specification-Version: 2.4
+Specification-Vendor: JBoss by Red Hat
+Implementation-Title: Debezium Server HTTP Webhook Sink Adapter
+Implementation-Version: 2.4.2.Final
+Implementation-Vendor-Id: io.debezium
+Implementation-Vendor: JBoss by Red Hat
+Implementation-URL: https://debezium.io/debezium-parent/debezium-server/
+ debezium-server-http
+Java-Vendor: Oracle Corporation
+Java-Version: 17.0.2
+Os-Arch: amd64
+Os-Name: Linux
+Os-Version: 4.18.0-358.el8.x86_64
+Scm-Connection: scm:git:git@github.com:debezium/debezium-server.git/debe
+ zium-server-http
+Scm-Revision: a30ae6868e459232acb21c6ee8cdbf65d970564f
+Scm-Url: https://github.com/debezium/debezium-server/debezium-server-htt
+ p
+

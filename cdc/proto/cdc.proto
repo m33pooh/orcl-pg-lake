@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package datalake.cdc;
+
+option java_multiple_files = true;
+option java_package = "io.debezium.server.grpc.proto";
+
+message RecordPayload {
+  string destination = 1;
+  string key = 2;
+  string value = 3;
+}
+
+message BatchPayload {
+  string app_name = 1;
+  repeated RecordPayload records = 2;
+}
+
+message BatchResponse {
+  bool success = 1;
+  int32 processed_count = 2;
+  string error = 3;
+}
+
+service IngestionService {
+  rpc SendBatch(BatchPayload) returns (BatchResponse);
+}

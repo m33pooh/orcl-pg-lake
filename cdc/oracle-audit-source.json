@@ -1,0 +1,25 @@
+{
+  "name": "oracle-audit-source",
+  "config": {
+    "connector.class": "io.debezium.connector.oracle.OracleConnector",
+    "tasks.max": "1",
+    "database.hostname": "oracle-audit",
+    "database.port": "1521",
+    "database.user": "c##dbzuser",
+    "database.password": "dbz_password",
+    "database.dbname": "FREE",
+    "database.pdb.name": "FREEPDB1",
+    "topic.prefix": "audit_cdc",
+    "table.include.list": ".*AUDIT_APP\\..*",
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
+    "schema.history.internal.kafka.topic": "schema-changes.audit_cdc",
+    "snapshot.locking.mode": "none",
+    "max.batch.size": "10000",
+    "max.queue.size": "50000",
+    "poll.interval.ms": "100",
+    "log.mining.batch.size.min": "5000",
+    "log.mining.batch.size.default": "20000",
+    "log.mining.batch.size.max": "100000",
+    "log.mining.sleep.time.default.ms": "200"
+  }
+}

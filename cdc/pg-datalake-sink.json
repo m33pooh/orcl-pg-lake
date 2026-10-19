@@ -1,0 +1,19 @@
+{
+  "name": "pg-datalake-sink",
+  "config": {
+    "connector.class": "io.debezium.connector.jdbc.JdbcSinkConnector",
+    "tasks.max": "6",
+    "connection.url": "jdbc:postgresql://postgres-datalake:5432/datalake_db?reWriteBatchedInserts=true",
+    "connection.username": "datalake_admin",
+    "connection.password": "DataLakePwd123!",
+    "insert.mode": "upsert",
+    "primary.key.mode": "record_key",
+    "schema.evolution": "basic",
+    "auto.create": "true",
+    "auto.evolve": "true",
+    "delete.enabled": "true",
+    "topics.regex": "(wallet_cdc|ecommerce_cdc|crm_cdc|audit_cdc)\\..*",
+    "consumer.override.max.poll.records": "5000",
+    "consumer.override.partition.assignment.strategy": "org.apache.kafka.clients.consumer.RoundRobinAssignor"
+  }
+}

@@ -1,0 +1,19 @@
+# Environment variables
+.env
+.env.local
+*.env
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker / volume caches
+*.log
+*.jar
+cdc/lib/

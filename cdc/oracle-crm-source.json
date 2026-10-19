@@ -1,0 +1,25 @@
+{
+  "name": "oracle-crm-source",
+  "config": {
+    "connector.class": "io.debezium.connector.oracle.OracleConnector",
+    "tasks.max": "1",
+    "database.hostname": "oracle-crm",
+    "database.port": "1521",
+    "database.user": "c##dbzuser",
+    "database.password": "dbz_password",
+    "database.dbname": "FREE",
+    "database.pdb.name": "FREEPDB1",
+    "topic.prefix": "crm_cdc",
+    "table.include.list": ".*CRM_APP\\..*",
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
+    "schema.history.internal.kafka.topic": "schema-changes.crm_cdc",
+    "snapshot.locking.mode": "none",
+    "max.batch.size": "10000",
+    "max.queue.size": "50000",
+    "poll.interval.ms": "100",
+    "log.mining.batch.size.min": "5000",
+    "log.mining.batch.size.default": "20000",
+    "log.mining.batch.size.max": "100000",
+    "log.mining.sleep.time.default.ms": "200"
+  }
+}
